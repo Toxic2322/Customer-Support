@@ -520,11 +520,11 @@ function App() {
 
   const handleDeleteAllCards = () => {
     if (showFavoritesOnly) {
-      // When viewing favorites, only delete the favorited cards
+      // When viewing favorites, delete the favorited cards but stay in favorites tab
       const cardsToDelete = favoritedCards.length;
       if (cardsToDelete > 0 && window.confirm(`Are you sure you want to delete all ${cardsToDelete} favorited card(s)?`)) {
         setCards(cards.filter(card => !card.favorited));
-        setShowFavoritesOnly(false); // Switch back to all cards view
+        // Stay in favorites tab - don't switch back to all cards view
       }
     } else {
       // When viewing all cards, delete everything except favorited cards
