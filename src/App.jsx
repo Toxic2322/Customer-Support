@@ -519,9 +519,21 @@ function App() {
   };
 
   const handleDeleteAllCards = () => {
-    if (cards.length > 0 && window.confirm(`Are you sure you want to delete all ${cards.length} card(s)?`)) {
-      setCards([]);
-      localStorage.removeItem('cards');
+    if (showFavoritesOnly) {
+      // When viewing favorites, only delete the favorited cards
+      const cardsToDelete = favoritedCards.length;
+      if (cardsToDelete > 0 && window.confirm(`Are you sure you want to delete all ${cardsToDelete} favorited card(s)?`)) {
+        setCards(cards.filter(card => !card.favorited));
+        setShowFavoritesOnly(false); // Switch back to all cards view
+      }
+    } else {
+      // When viewing all cards, delete everything except favorited cards
+      const nonFavoritedCount = cards.filter(card => !card.favorited).length;
+      if (nonFavoritedCount > 0 && window.confirm(`Are you sure you want to delete all ${nonFavoritedCount} non-favorited card(s)? Favorited cards will be kept.`)) {
+        setCards(cards.filter(card => card.favorited));
+      } else if (nonFavoritedCount === 0 && favoritedCards.length > 0) {
+        alert('All cards are favorited. Unfavorite some cards first if you want to delete them.');
+      }
     }
   };
 
