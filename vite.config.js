@@ -12,7 +12,11 @@ const getBasePath = () => {
   // If GITHUB_PAGES is set, use the repository name
   // For user/organization pages, this should be '/'
   // For project pages, this should be '/repository-name/'
-  return process.env.GITHUB_PAGES ? '/Customer-Support/' : '/'
+  // Default to '/Customer-Support/' for GitHub Pages deployment
+  if (process.env.GITHUB_PAGES || process.env.NODE_ENV === 'production') {
+    return '/Customer-Support/'
+  }
+  return '/'
 }
 
 // https://vitejs.dev/config/
