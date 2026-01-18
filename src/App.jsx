@@ -372,7 +372,17 @@ function App() {
   });
   const [showChangeName, setShowChangeName] = useState(false);
   const [emojiIndex, setEmojiIndex] = useState(null);
-  const [cards, setCards] = useState([]);
+  const [cards, setCards] = useState(() => {
+    const saved = localStorage.getItem('cards');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  });
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
     return saved ? JSON.parse(saved) : false;
@@ -380,6 +390,7 @@ function App() {
   
   // Card form state
   const [clientName, setClientName] = useState('');
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('agentName', agentName);
@@ -388,6 +399,10 @@ function App() {
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
   }, [darkMode]);
+
+  useEffect(() => {
+    localStorage.setItem('cards', JSON.stringify(cards));
+  }, [cards]);
 
   const themeStyles = darkMode ? {
     background: '#1a1a1a',
@@ -494,7 +509,8 @@ function App() {
       phrase, 
       clientName: clientName.trim(),
       agentName,
-      id: Date.now() + Math.random()
+      id: Date.now() + Math.random(),
+      favorited: false
     }, ...cards]);
   };
 
@@ -505,8 +521,18 @@ function App() {
   const handleDeleteAllCards = () => {
     if (cards.length > 0 && window.confirm(`Are you sure you want to delete all ${cards.length} card(s)?`)) {
       setCards([]);
+      localStorage.removeItem('cards');
     }
   };
+
+  const handleToggleFavorite = (cardId) => {
+    setCards(cards.map(card => 
+      card.id === cardId ? { ...card, favorited: !card.favorited } : card
+    ));
+  };
+
+  const favoritedCards = cards.filter(card => card.favorited);
+  const displayedCards = showFavoritesOnly ? favoritedCards : cards;
 
   return (
     <div style={{
@@ -653,8 +679,47 @@ function App() {
         <div style={{
           maxWidth:'750px',
           margin:'24px auto 16px auto',
-          textAlign:'center'
+          textAlign:'center',
+          display: 'flex',
+          gap: '12px',
+          justifyContent: 'center',
+          flexWrap: 'wrap'
         }}>
+          {favoritedCards.length > 0 && (
+            <button
+              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+              style={{
+                padding:'12px 24px',
+                fontSize:'1rem',
+                background: showFavoritesOnly ? '#ffd700' : 'rgba(255,215,0,0.2)',
+                color: showFavoritesOnly ? '#000' : '#ffd700',
+                border: `2px solid #ffd700`,
+                borderRadius:'8px',
+                cursor:'pointer',
+                fontWeight:'600',
+                transition: 'all 0.3s ease',
+                boxShadow: showFavoritesOnly 
+                  ? (darkMode ? '0 4px 12px rgba(255,215,0,0.5)' : '0 4px 12px rgba(255,215,0,0.4)')
+                  : 'none',
+                transform: showFavoritesOnly ? 'scale(1.05)' : 'scale(1)'
+              }}
+              onMouseEnter={(e) => {
+                if (!showFavoritesOnly) {
+                  e.target.style.background = 'rgba(255,215,0,0.3)';
+                  e.target.style.transform = 'scale(1.05)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!showFavoritesOnly) {
+                  e.target.style.background = 'rgba(255,215,0,0.2)';
+                  e.target.style.transform = 'scale(1)';
+                }
+              }}
+              title={showFavoritesOnly ? 'Show all cards' : `Show ${favoritedCards.length} favorited card(s)`}
+            >
+              ⭐ {showFavoritesOnly ? 'Show All' : `Favorites (${favoritedCards.length})`}
+            </button>
+          )}
           <button
             onClick={handleDeleteAllCards}
             style={{
@@ -691,15 +756,17 @@ function App() {
         gap:'24px',
         justifyContent:'center'
       }}>
-        {cards.length === 0 && (
+        {displayedCards.length === 0 && (
           <div style={{
             color: themeStyles.emptyText, 
             marginTop:'32px', 
             textAlign:'center', 
             width:'100%'
-          }}>No cards created yet.</div>
+          }}>
+            {showFavoritesOnly ? 'No favorited cards yet. Click the ⭐ on any card to favorite it!' : 'No cards created yet.'}
+          </div>
         )}
-        {cards.map((card, idx) => (
+        {displayedCards.map((card, idx) => (
           <div key={card.id || idx}
             style={{
               background: themeStyles.cardBg,
@@ -713,10 +780,56 @@ function App() {
               display:'flex',
               flexDirection:'column',
               alignItems:'center',
-              transition: 'transform 0.1s',
-              position: 'relative'
+              transition: 'all 0.3s ease',
+              position: 'relative',
+              opacity: showFavoritesOnly && !card.favorited ? 0 : 1,
+              transform: card.favorited ? 'scale(1.02)' : 'scale(1)',
+              border: card.favorited ? `2px solid #ffd700` : `1.5px solid ${themeStyles.cardBorder}`,
+              boxShadow: card.favorited 
+                ? (darkMode ? '0 4px 20px rgba(255,215,0,0.4)' : '0 4px 20px rgba(255,215,0,0.3)')
+                : (darkMode ? '0 2px 14px rgba(0,0,0,0.5)' : '0 2px 14px #0002')
             }}
           >
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleFavorite(card.id);
+              }}
+              style={{
+                position: 'absolute',
+                top: '8px',
+                left: '8px',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: '50%',
+                width: '32px',
+                height: '32px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '20px',
+                padding: 0,
+                transition: 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+                transform: card.favorited ? 'scale(1.2) rotate(0deg)' : 'scale(1) rotate(0deg)',
+                filter: card.favorited ? 'drop-shadow(0 0 4px rgba(255,215,0,0.8))' : 'none'
+              }}
+              onMouseEnter={(e) => {
+                if (!card.favorited) {
+                  e.target.style.transform = 'scale(1.15) rotate(5deg)';
+                  e.target.style.filter = 'drop-shadow(0 0 2px rgba(255,215,0,0.5))';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!card.favorited) {
+                  e.target.style.transform = 'scale(1) rotate(0deg)';
+                  e.target.style.filter = 'none';
+                }
+              }}
+              title={card.favorited ? 'Remove from favorites' : 'Add to favorites'}
+            >
+              {card.favorited ? '⭐' : '☆'}
+            </button>
             <button
               onClick={() => handleDeleteCard(card.id)}
               style={{
