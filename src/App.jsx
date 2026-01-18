@@ -754,9 +754,13 @@ function App() {
               e.target.style.background = '#ff4444';
               e.target.style.transform = 'scale(1)';
             }}
-            title={`Delete all ${cards.length} card(s)`}
+            title={showFavoritesOnly 
+              ? `Delete all ${favoritedCards.length} favorited card(s)` 
+              : `Delete all ${cards.filter(card => !card.favorited).length} non-favorited card(s). Favorited cards will be kept.`}
           >
-            🗑️ Close All Cards ({cards.length})
+            🗑️ {showFavoritesOnly 
+              ? `Close All Favorites (${favoritedCards.length})` 
+              : `Close All Cards (${cards.filter(card => !card.favorited).length})`}
           </button>
         </div>
       )}
