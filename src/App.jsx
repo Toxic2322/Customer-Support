@@ -502,6 +502,12 @@ function App() {
     setCards(cards.filter(card => card.id !== cardId));
   };
 
+  const handleDeleteAllCards = () => {
+    if (cards.length > 0 && window.confirm(`Are you sure you want to delete all ${cards.length} card(s)?`)) {
+      setCards([]);
+    }
+  };
+
   return (
     <div style={{
       fontFamily:'sans-serif', 
@@ -526,6 +532,31 @@ function App() {
           gap: '10px',
           alignItems: 'center'
         }}>
+          {cards.length > 0 && (
+            <button
+              onClick={handleDeleteAllCards}
+              style={{
+                background: 'rgba(255,68,68,0.9)',
+                border: 'none',
+                color: 'white',
+                padding: '6px 12px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                transition: 'background 0.2s',
+                fontWeight: '500'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = 'rgba(204,0,0,0.9)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = 'rgba(255,68,68,0.9)';
+              }}
+              title={`Delete all ${cards.length} card(s)`}
+            >
+              🗑️ Close All ({cards.length})
+            </button>
+          )}
           <button
             onClick={() => setShowChangeName(true)}
             style={{
@@ -618,6 +649,40 @@ function App() {
           >Create Card</button>
         </section>
       </main>
+      {cards.length > 0 && (
+        <div style={{
+          maxWidth:'750px',
+          margin:'24px auto 16px auto',
+          textAlign:'center'
+        }}>
+          <button
+            onClick={handleDeleteAllCards}
+            style={{
+              padding:'12px 24px',
+              fontSize:'1rem',
+              background: '#ff4444',
+              color:'white',
+              border:'none',
+              borderRadius:'8px',
+              cursor:'pointer',
+              fontWeight:'600',
+              transition: 'background 0.2s, transform 0.1s',
+              boxShadow: darkMode ? '0 2px 8px rgba(255,68,68,0.4)' : '0 2px 8px rgba(255,68,68,0.3)'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = '#cc0000';
+              e.target.style.transform = 'scale(1.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = '#ff4444';
+              e.target.style.transform = 'scale(1)';
+            }}
+            title={`Delete all ${cards.length} card(s)`}
+          >
+            🗑️ Close All Cards ({cards.length})
+          </button>
+        </div>
+      )}
       <div style={{
         maxWidth:'750px',
         margin:'32px auto 0 auto',
