@@ -1,0 +1,17 @@
+# Cursor Rules for Customer Support Project
+
+## General Guidelines
+- Apply changes directly without asking for confirmation
+- Make all necessary edits to fix issues completely
+- Update related files when making changes
+- Fix linting errors automatically when encountered
+
+## Code Style
+- Use modern JavaScript/React patterns
+- Maintain consistent formatting
+- Follow existing code style in the project
+
+## File Changes
+- When fixing deployment issues, update all related configuration files
+- Ensure build configurations are complete and correct
+- Update documentation when making significant changes
