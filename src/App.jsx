@@ -613,7 +613,11 @@ function App() {
           </button>
           <ThemeToggle darkMode={darkMode} setDarkMode={setDarkMode} themeStyles={themeStyles} />
         </div>
-        <h2>Phrase Card Generator for Agents</h2>
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '8px'}}>
+          <span style={{fontSize: '2.5rem'}}>💀</span>
+          <h2 style={{margin: 0}}>Phrase Card Generator for Agents</h2>
+          <span style={{fontSize: '2.5rem'}}>💀</span>
+        </div>
         <div style={{fontSize:'18px'}}>👋 Welcome, <b>{agentName}</b>!</div>
       </header>
       
